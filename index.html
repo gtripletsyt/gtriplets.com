@@ -13,16 +13,35 @@
       font-family: Arial, Helvetica, sans-serif;
     }
 
-    body {
-      background: linear-gradient(135deg, #4f46e5, #06b6d4);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
+  body {
+  background: linear-gradient(
+    -45deg,
+    #0f172a,
+    #1e3a8a,
+    #7c3aed,
+    #0ea5e9
+  );
 
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease infinite;
+
+  min-height: 100vh;
+}
+
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
     .hero {
       max-width: 700px;
       padding: 20px;
