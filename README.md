@@ -1,1 +1,1 @@
-main for my gtriplets.com website
+repository for my website
