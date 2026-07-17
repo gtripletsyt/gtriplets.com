@@ -18,13 +18,18 @@ export async function onRequest(context) {
             }
 
             footer {
-              margin-top: auto;
-              text-align: center;
-              padding: 20px;
-              color: #9ca3af;
-              font-size: 14px;
-              font-family: Arial, sans-serif;
-            }
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+}
           </style>
         `, { html: true });
       }
@@ -36,7 +41,7 @@ export async function onRequest(context) {
       <footer>
         <a href="/" class="home-button">back home</a>
         <br>
-        © 2026 G Triplets. all rights reserved.
+        © 2026 gtriplets.com. all rights reserved.
       </footer>
     `, { html: true });
   }
