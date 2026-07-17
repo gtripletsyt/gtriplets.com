@@ -94,7 +94,7 @@ export async function onRequest(context) {
             </a>
 
             <nav>
-              <a href="/">Home</a>
+              <a href="/">home</a>
               <a href="/about">about</a>
               <a href="/contact">contact</a>
               <a href=/games">games</a>
