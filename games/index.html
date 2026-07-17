@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gtrip's games</title>
+
+<style>
+  body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 30px;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  .games {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 30px auto;
+  }
+
+  .card {
+    background: #222;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid #333;
+    transition: 0.2s;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+    border-color: #00ff99;
+  }
+
+  .card h2 {
+    margin-top: 0;
+  }
+
+  .play {
+    background: #00ff99;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .play:hover {
+    background: #00cc77;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>my games</h1>
+
+<div class="games">
+
+  <div class="card">
+    <h2>blank title </h2>
+    <p>blank</p>
+    <button class="play" onclick="openGame('game1')">play</button>
+  </div>
+
+  <div class="card">
+    <h2>some more blank/h2>
+    <p>blank fun blank</p>
+    <button class="play" onclick="openGame('game2')">play</button>
+  </div>
+
+  <div class="card">
+    <h2>more blank</h2>
+    <p>even more blank</p>
+    <button class="play" onclick="openGame('game3')">play</button>
+  </div>
+  
+  <div class="card">
+    <h2>i'm bored</h2>
+    <p>even more bored</p>
+    <button class="play" onclick="openGame('game4')">play</button>
+  </div>
+
+
+</div>
+
+<script>
+function openGame(game) {
+  if (game === "game1") {
+    window.location.href = "blank.html";
+  }
+
+  if (game === "game2") {
+    window.location.href = "blank.html";
+  }
+
+  if (game === "game3") {
+    window.location.href = "blank.html";
+  }
+
+  if (game === "game4") {
+    window.location.href = "blank.html";
+  }
+}
+</script>
+
+</body>
+</html>
