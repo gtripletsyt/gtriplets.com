@@ -7,23 +7,31 @@ export async function onRequest(context) {
       element(element) {
         element.append(`
           <style>
-            /* HEADER */
-            header {
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 60px;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: 0 30px;
-              background: rgba(0, 0, 0, 0.75);
-              backdrop-filter: blur(10px);
-              color: white;
-              font-family: Arial, sans-serif;
-              z-index: 9999;
-              box-sizing: border-box;
-            }
+           header {
+          position: static;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 30px;
+  box-sizing: border-box;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+  color: white;
+  font-family: Arial, sans-serif;
+
+  z-index: 999999;
+}
 
             header .logo {
               color: white;
