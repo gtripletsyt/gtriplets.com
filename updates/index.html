@@ -55,12 +55,12 @@
 
 <body>
 
-<h1>🚀 latest site updates</h1>
+<h1>latest site updates</h1>
 
 <div id="commits"></div>
 
 <div id="loading">
-  Loading commits...
+  Loading... (if this is taking a while, check GitHub servers to see if it's down)
 </div>
 
 <script>
@@ -107,9 +107,9 @@ async function loadCommits() {
         </h2>
 
         <p>
-          👤 ${commit.commit.author.name}
+           ${commit.commit.author.name}
           <br>
-          📅 ${new Date(commit.commit.author.date).toLocaleString()}
+           ${new Date(commit.commit.author.date).toLocaleString()}
         </p>
 
         <a href="${commit.html_url}" target="_blank">
@@ -134,7 +134,7 @@ window.addEventListener("scroll", () => {
 
   if (
     window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 200
+    document.body.offsetHeight - 150
   ) {
     loadCommits();
   }
