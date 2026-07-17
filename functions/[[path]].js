@@ -8,7 +8,7 @@ export async function onRequest(context) {
         element.append(`
           <style>
            header {
-          position: static;
+          position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
