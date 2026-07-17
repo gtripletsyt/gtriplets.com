@@ -3,7 +3,6 @@ export async function onRequest(context) {
 
   return new HTMLRewriter()
 
-    // Add CSS into every page
     .on("head", {
       element(element) {
         element.append(`
@@ -30,17 +29,18 @@ export async function onRequest(context) {
         `, { html: true });
       }
     })
-
-    // Add footer before the end of body
+    
     .on("body", {
-      element(element) {
-        element.append(`
-          <footer>
-            © 2026 gtriplets.com. all rights reserved.
-          </footer>
-        `, { html: true });
-      }
-    })
+  element(element) {
+    element.append(`
+      <footer>
+        <a href="/" class="home-button">back home</a>
+        <br>
+        © 2026 G Triplets. all rights reserved.
+      </footer>
+    `, { html: true });
+  }
+})
 
     .transform(response);
 }
