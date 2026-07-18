@@ -50,6 +50,9 @@ export async function onRequest(context) {
               text-decoration: none;
               font-size: 14px;
             }
+            #secret {
+            display: none;
+            }  
 
             header nav a:hover {
               color: white;
