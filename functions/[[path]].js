@@ -98,6 +98,7 @@ export async function onRequest(context) {
               <a href="/about">about</a>
               <a href="/contact">contact</a>
               <a href="/games">games</a>
+              <a href="/live">news</a>
             </nav>
           </header>
         `, { html: true });
