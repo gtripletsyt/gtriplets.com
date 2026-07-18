@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>latest updates</title>
+
+  <style>
+    body {
+      background: #111827;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .commit {
+      background: #1f2937;
+      padding: 20px;
+      margin: 15px auto;
+      max-width: 700px;
+      border-radius: 12px;
+      transition: 0.2s;
+    }
+
+    .commit:hover {
+      transform: translateY(-3px);
+      background: #374151;
+    }
+
+    .commit h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .commit p {
+      color: #cbd5e1;
+    }
+
+    a {
+      color: #60a5fa;
+    }
+
+    #loading {
+      text-align: center;
+      margin: 30px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>latest site updates</h1>
+
+<div id="commits"></div>
+
+<div id="loading">
+  Loading... (if this is taking a while, check GitHub servers to see if it's down)
+</div>
+
+<script>
+
+const username = "GTrip123";
+const repo = "gtriplets.com";
+
+let page = 1;
+let loading = false;
+let finished = false;
+
+
+async function loadCommits() {
+
+  if (loading || finished) return;
+
+  loading = true;
+
+  const response = await fetch(`/api/updates?page=${page}`);
+  const commits = await response.json();
+
+  const commits = await response.json();
+
+
+  if (commits.length === 0) {
+    finished = true;
+    document.getElementById("loading").innerHTML =
+      "No more news.";
+    return;
+  }
+
+
+  const container = document.getElementById("commits");
+
+
+  commits.forEach(commit => {
+
+    container.innerHTML += `
+      <div class="commit">
+
+        <h2>
+          ${commit.title}
+        </h2>
+
+        <p>
+           ${commit.author}
+          <br>
+           ${new Date(commit.date).toLocaleString()}
+        </p>
+
+        <a href="${commit.url}" target="_blank">
+          View commit →
+        </a>
+
+      </div>
+    `;
+
+  });
+
+
+  page++;
+  loading = false;
+  document.getElementById("loading").innerHTML =
+    "Scroll for more...";
+}
+
+
+// Detect when user reaches bottom
+window.addEventListener("scroll", () => {
+
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 150
+  ) {
+    loadCommits();
+  }
+
+});
+
+
+// Load first batch
+loadCommits();
+
+</script>
+
+</body>
+</html>
 
