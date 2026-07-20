@@ -77,7 +77,7 @@ async function loadCommits() {
 
   loading = true;
 
-  const response = await fetch(`/api/updates?page=${page}`);
+  const response = await fetch("/api/updates?page=" + page);
   const commits = await response.json();
 
   const commits = await response.json();
