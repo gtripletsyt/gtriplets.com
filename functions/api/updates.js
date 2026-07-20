@@ -5,7 +5,7 @@ export async function onRequest(context) {
       title: "less work on the site",
       description: "hello everyone. so this website will most likely not have a lot of work done on it, since i grinded to get the main part done. i might update this every once in a while to tell yall how im doing, but since there's nothing to add to the site as much, i wont do as much. i might edit some stuff every day but not much. thanks for reading!",
       author: "gtripletsyt",
-      date: "2026-07-20T18:15:43Z",,
+      date: "2026-07-20T18:15:43Z",
       url: "#"
     },
     {
