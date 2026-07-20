@@ -124,17 +124,6 @@ async function loadCommits() {
 }
 
 
-window.addEventListener("scroll", () => {
-
-  if (
-    window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 150
-  ) {
-    loadCommits();
-  }
-
-});
-
 
 console.log("loadCommits called");
 loadCommits();
