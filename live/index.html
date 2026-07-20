@@ -80,7 +80,6 @@ async function loadCommits() {
   const response = await fetch("/api/updates?page=" + page);
   const commits = await response.json();
 
-  const commits = await response.json();
 
 
   if (commits.length === 0) {
