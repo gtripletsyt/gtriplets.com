@@ -96,24 +96,23 @@ async function loadCommits() {
   commits.forEach(commit => {
 
     container.innerHTML += `
-      <div class="commit">
+  <div class="commit">
 
-        <h2>
-          ${commit.title}
-        </h2>
+    <h2>${commit.title}</h2>
 
-        <p>
-           ${commit.author}
-          <br>
-           ${new Date(commit.date).toLocaleString()}
-        </p>
+    <p>${commit.description}</p>
 
-        <a href="${commit.url}" target="_blank">
-          View commit →
-        </a>
+    <p>
+      ${commit.author}<br>
+      ${new Date(commit.date).toLocaleString()}
+    </p>
 
-      </div>
-    `;
+    <a href="${commit.url}" target="_blank">
+      View →
+    </a>
+
+  </div>
+`;
 
   });
 
