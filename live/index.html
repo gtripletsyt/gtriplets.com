@@ -126,7 +126,6 @@ async function loadCommits() {
 }
 
 
-// Detect when user reaches bottom
 window.addEventListener("scroll", () => {
 
   if (
@@ -139,7 +138,7 @@ window.addEventListener("scroll", () => {
 });
 
 
-// Load first batch
+console.log("loadCommits called");
 loadCommits();
 
 </script>
