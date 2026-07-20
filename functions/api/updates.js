@@ -2,15 +2,16 @@ export async function onRequest(context) {
 
   const updates = [
     {
-      title: "yoooooo hopefully this works... im hoping",
+      title: "less work on the site",
+      description: "hello everyone. so this website will most likely not have a lot of work done on it, since i grinded to get the main part done. i might update this every once in a while to tell yall how im doing, but since there's nothing to add to the site as much, i wont do as much. i might edit some stuff every day but not much. thanks for reading!"
       author: "gtripletsyt",
-      date: new Date().toISOString(),
+      date: "2026-07-20T18:15:43Z",,
       url: "#"
     },
     {
-      title: "ive done as much as i could, might take a lil break",
+      title: "testing",
       author: "gtripletsyt",
-      date: new Date().toISOString(),
+      date: "2026-07-19T15:15:02Z",
       url: "#"
     }
   ];
