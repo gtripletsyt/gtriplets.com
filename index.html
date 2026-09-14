@@ -68,6 +68,19 @@
       border-radius: 50%;
       background: #9ca3af;
     }
+    .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+  .status-wrap {
+  display: flex;
+  width: fit-content;
+  justify-content: center;
+  margin: 24px auto 0;
+}
     .status-dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
     .status-dot.offline { background: #ef4444; }
 
@@ -128,10 +141,15 @@
        <br><br>
         🎮 more stuff coming soon!
     </p>
-    <a href="/updates" class="btn">see my latest updates to the site</a>
-    <a href="/games" class="btn">check out my games (some with cheats 👀 )</a>
-
-    <div class="status-wrap">
+     <div class="button-group">
+    <a href="/updates" class="btn">
+    see my latest updates to the site
+    </a>
+    <a href="/games" class="btn">
+    check out my games (some with cheats 👀 )
+    </a>
+    </div>
+      <div class="status-wrap">
       <span class="status-dot" id="statusDot"></span>
       <span id="status">checking...</span>
       <button class="presence-toggle" id="presenceToggle">
