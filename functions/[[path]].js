@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <a href="/about">about</a>
               <a href="/contact">contact</a>
               <a href="/games">games</a>
-              <a href="/live">news</a>
+              <a href="/live">blog</a>
               <a href="/tools">tools</a>
             </nav>
           </header>
