@@ -1,144 +1,424 @@
 export async function onRequest(context) {
   const response = await context.next();
-  const url = new URL(context.request.url);
-  const pathname = url.pathname;
-  const isDriftBoss =
-    pathname === "/games/drift-boss" ||
-    pathname.startsWith("/games/drift-boss/");
-  const isGD =
-    pathname === "/games/gd" ||
-    pathname.startsWith("/games/gd/");
-  const isFlappy =
-    pathname === "/games/flappy" ||
-    pathname.startsWith("/games/flappy/");
-  if (isDriftBoss) {
+  const { pathname } = new URL(context.request.url);
+
+  const excludedPaths = [
+    "/games/drift-boss",
+    "/games/gd",
+    "/games/flappy"
+  ];
+
+  if (
+    excludedPaths.some(
+      path => pathname === path || pathname.startsWith(path + "/")
+    )
+  ) {
     return response;
   }
-   if (isGD) {
+
+  // Only modify HTML pages.
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/html")) {
     return response;
   }
-  if (isFlappy) {
-    return response;
-  }
+
+  const currentPath = pathname.replace(/\/+$/, "") || "/";
+
+  const navLinks = [
+    ["/", "home"],
+    ["/about", "about"],
+    ["/contact", "contact"],
+    ["/games", "games"],
+    ["/live", "blog"],
+    ["/tools", "tools"]
+  ];
+
+  const navigation = navLinks.map(([href, label]) => {
+    const active =
+      currentPath === href ||
+      (href !== "/" && currentPath.startsWith(href + "/"));
+
+    return `
+      <a href="${href}"
+         ${active ? 'class="gt-active" aria-current="page"' : ""}>
+        ${label}
+      </a>
+    `;
+  }).join("");
+
   return new HTMLRewriter()
     .on("head", {
       element(element) {
         element.append(`
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4454994261105400"
-     crossorigin="anonymous"></script>
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4454994261105400"
+            crossorigin="anonymous">
+          </script>
+
           <style>
-           header {
-          position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30px;
-  box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  color: white;
-  font-family: Arial, sans-serif;
-  z-index: 999999;
-}
-            header .logo {
-              color: white;
-              text-decoration: none;
-              font-size: 20px;
-              font-weight: bold;
+            :root {
+              --gt-cyan: #62f5ff;
+              --gt-purple: #a78bfa;
+              --gt-text: #f0f6ff;
+              --gt-muted: #9aaac4;
+              --gt-header-height: 76px;
+              --gt-footer-height: 58px;
             }
-            header nav {
-              display: flex;
-              gap: 20px;
+
+            html {
+              scroll-padding-top: calc(var(--gt-header-height) + 16px);
             }
-            header nav a {
-              color: #9ca3af;
-              text-decoration: none;
-              font-size: 14px;
-              position: relative;
-              padding-bottom: 8px;
+
+            body {
+              padding-top: var(--gt-header-height);
+              padding-bottom: calc(
+                var(--gt-footer-height) +
+                env(safe-area-inset-bottom, 0px)
+              );
             }
-            header nav a.active::after {
-              content: "";
-              position: absolute;
-              bottom: -8px;
-              left: 0;
-              width: 100%;
-              height: 3px;
-              background-color: blue;
-            }
+
             #secret {
-            display: none;
-            }  
-            header nav a:hover {
-              color: white;
+              display: none;
             }
-            /* FOOTER */
-            footer {
-              position: fixed;
-              bottom: 0;
-              left: 0;
-              width: 100%;
-              text-align: center;
-              padding: 20px;
-              color: #9ca3af;
-              font-size: 14px;
-              font-family: Arial, sans-serif;
-              background: rgba(0, 0, 0, 0.2);
-              z-index: 9999;
+
+            #gt-header,
+            #gt-footer,
+            #gt-header *,
+            #gt-footer * {
               box-sizing: border-box;
             }
-            /* Keep content away from fixed elements */
-            body {
-              padding-top: 60px;
-              padding-bottom: 70px;
+
+            #gt-header,
+            #gt-footer {
+              position: fixed;
+              left: 0;
+              right: 0;
+              width: 100%;
+              margin: 0;
+              color: var(--gt-text);
+              font-family: Arial, Helvetica, sans-serif;
+              -webkit-backdrop-filter: blur(22px) saturate(150%);
+              backdrop-filter: blur(22px) saturate(150%);
+              isolation: isolate;
+            }
+
+            /* HEADER */
+
+            #gt-header {
+              top: 0;
+              height: var(--gt-header-height);
+              padding: 0 28px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 24px;
+              background:
+                radial-gradient(
+                  ellipse at top left,
+                  rgba(98, 245, 255, 0.10),
+                  transparent 55%
+                ),
+                rgba(7, 11, 23, 0.94);
+              border: 0;
+              box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+              z-index: 999999;
+            }
+
+            #gt-header::after,
+            #gt-footer::before {
+              content: "";
+              position: absolute;
+              left: 0;
+              right: 0;
+              height: 1px;
+              pointer-events: none;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                var(--gt-cyan),
+                var(--gt-purple),
+                transparent
+              );
+              opacity: 0.7;
+            }
+
+            #gt-header::after {
+              bottom: 0;
+              box-shadow: 0 0 16px rgba(98, 245, 255, 0.35);
+            }
+
+            #gt-header .gt-logo {
+              display: inline-flex;
+              align-items: center;
+              gap: 12px;
+              flex-shrink: 0;
+              color: var(--gt-text);
+              text-decoration: none;
+              white-space: nowrap;
+            }
+
+            #gt-header .gt-mark {
+              display: grid;
+              place-items: center;
+              width: 38px;
+              height: 38px;
+              border: 1px solid rgba(98, 245, 255, 0.5);
+              border-radius: 12px 4px 12px 4px;
+              background: linear-gradient(
+                135deg,
+                rgba(98, 245, 255, 0.16),
+                rgba(167, 139, 250, 0.12)
+              );
+              color: var(--gt-cyan);
+              font-size: 15px;
+              font-weight: 800;
+              letter-spacing: -1px;
+              box-shadow:
+                inset 0 0 14px rgba(98, 245, 255, 0.07),
+                0 0 18px rgba(98, 245, 255, 0.09);
+            }
+
+            #gt-header .gt-wordmark {
+              font-size: 19px;
+              font-weight: 800;
+              letter-spacing: 2px;
+              text-transform: uppercase;
+            }
+
+            #gt-header .gt-wordmark span {
+              color: var(--gt-cyan);
+            }
+
+            #gt-header nav {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              min-width: 0;
+            }
+
+            #gt-header nav a {
+              position: relative;
+              display: inline-flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 42px;
+              padding: 0 15px;
+              border: 1px solid transparent;
+              border-radius: 9px;
+              color: var(--gt-muted);
+              background: transparent;
+              font-size: 11px;
+              font-weight: 700;
+              letter-spacing: 1.4px;
+              line-height: 1;
+              text-decoration: none;
+              text-transform: uppercase;
+              white-space: nowrap;
+              transition:
+                color 180ms ease,
+                background 180ms ease,
+                border-color 180ms ease,
+                box-shadow 180ms ease;
+            }
+
+            #gt-header nav a:hover {
+              color: var(--gt-text);
+              border-color: rgba(98, 245, 255, 0.22);
+              background: rgba(98, 245, 255, 0.06);
+            }
+
+            #gt-header nav a.gt-active {
+              color: var(--gt-cyan);
+              border-color: rgba(98, 245, 255, 0.32);
+              background: linear-gradient(
+                135deg,
+                rgba(98, 245, 255, 0.12),
+                rgba(167, 139, 250, 0.06)
+              );
+              box-shadow: inset 0 0 18px rgba(98, 245, 255, 0.04);
+            }
+
+            #gt-header nav a.gt-active::after {
+              content: "";
+              position: absolute;
+              bottom: -1px;
+              left: 25%;
+              width: 50%;
+              height: 2px;
+              background: var(--gt-cyan);
+              box-shadow: 0 0 10px var(--gt-cyan);
+            }
+
+            /* FOOTER */
+
+            #gt-footer {
+              bottom: 0;
+              min-height: calc(
+                var(--gt-footer-height) +
+                env(safe-area-inset-bottom, 0px)
+              );
+              padding: 10px 28px
+                calc(10px + env(safe-area-inset-bottom, 0px));
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 16px;
+              background: rgba(7, 11, 23, 0.94);
+              border: 0;
+              box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+              z-index: 999998;
+            }
+
+            #gt-footer::before {
+              top: 0;
+              opacity: 0.4;
+            }
+
+            #gt-footer .gt-copyright {
+              margin: 0;
+              color: var(--gt-muted);
+              font-size: 11px;
+              letter-spacing: 0.5px;
+              line-height: 1.5;
+            }
+
+            #gt-footer .gt-home {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 9px;
+              flex-shrink: 0;
+              min-height: 36px;
+              padding: 0 14px;
+              border: 1px solid rgba(98, 245, 255, 0.25);
+              border-radius: 7px;
+              color: var(--gt-cyan);
+              background: rgba(98, 245, 255, 0.04);
+              font-size: 10px;
+              font-weight: 700;
+              letter-spacing: 1.4px;
+              text-transform: uppercase;
+              text-decoration: none;
+              transition:
+                background 180ms ease,
+                box-shadow 180ms ease;
+            }
+
+            #gt-footer .gt-home:hover {
+              background: rgba(98, 245, 255, 0.12);
+              box-shadow: 0 0 20px rgba(98, 245, 255, 0.12);
+            }
+
+            #gt-header a:focus-visible,
+            #gt-footer a:focus-visible {
+              outline: 2px solid var(--gt-cyan);
+              outline-offset: 4px;
+            }
+
+            /* MOBILE */
+
+            @media (max-width: 760px) {
+              :root {
+                --gt-header-height: 116px;
+                --gt-footer-height: 64px;
+              }
+
+              #gt-header {
+                flex-direction: column;
+                justify-content: center;
+                gap: 10px;
+                padding: 10px 12px;
+              }
+
+              #gt-header .gt-mark {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+              }
+
+              #gt-header .gt-wordmark {
+                font-size: 16px;
+              }
+
+              #gt-header nav {
+                width: 100%;
+                justify-content: center;
+                gap: 3px;
+              }
+
+              #gt-header nav a {
+                min-height: 40px;
+                padding: 0 9px;
+                font-size: 10px;
+                letter-spacing: 0.7px;
+              }
+
+              #gt-footer {
+                padding-left: 14px;
+                padding-right: 14px;
+                gap: 10px;
+              }
+
+              #gt-footer .gt-copyright {
+                max-width: 200px;
+                font-size: 10px;
+              }
+
+              #gt-footer .gt-home {
+                padding: 0 10px;
+                font-size: 9px;
+                letter-spacing: 0.7px;
+              }
+            }
+
+            @media (max-width: 380px) {
+              #gt-header nav {
+                gap: 1px;
+              }
+
+              #gt-header nav a {
+                padding: 0 6px;
+                font-size: 9px;
+              }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+              #gt-header *,
+              #gt-footer * {
+                transition: none !important;
+              }
             }
           </style>
-         <script data-cfasync="false">
-document.addEventListener('DOMContentLoaded', () => {
-  const normalize = (path) => path.length > 1 ? path.replace(/\/+$/, '') : path;
-  const currentPath = normalize(window.location.pathname);
-
-  document.querySelectorAll('header nav a').forEach(link => {
-    const linkPath = normalize(link.getAttribute('href'));
-    if (linkPath === currentPath) {
-      link.classList.add('active');
-    }
-  });
-});
-</script>
         `, { html: true });
       }
     })
     .on("body", {
       element(element) {
         element.prepend(`
-          <header>
-            <a href="/" class="logo">
-              g triplets
+          <header id="gt-header">
+            <a href="/" class="gt-logo" aria-label="G Triplets home">
+              <span class="gt-mark" aria-hidden="true">GT</span>
+              <span class="gt-wordmark">g<span>triplets</span></span>
             </a>
-            <nav>
-              <a href="/">home</a>
-              <a href="/about">about</a>
-              <a href="/contact">contact</a>
-              <a href="/games">games</a>
-              <a href="/live">blog</a>
-              <a href="/tools">tools</a>
+
+            <nav aria-label="Main navigation">
+              ${navigation}
             </nav>
           </header>
         `, { html: true });
+
         element.append(`
-          <footer>
-            <a href="/" class="home-button">
+          <footer id="gt-footer">
+            <p class="gt-copyright">
+              &copy; ${new Date().getUTCFullYear()} gtriplets.com.
+              All rights reserved.
+            </p>
+
+            <a href="/" class="gt-home">
+              <span aria-hidden="true">&#8592;</span>
               back home
             </a>
-            <br>
-            © 2026 gtriplets.com. all rights reserved.
           </footer>
         `, { html: true });
       }
