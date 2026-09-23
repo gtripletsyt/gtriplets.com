@@ -1,5 +1,5 @@
 const EXCLUDED = ['/games/drift-boss', '/games/gd', '/games/flappy'];
-const LINKS = [['/', 'home'], ['/about', 'about'], ['/games', 'games'], ['/live', 'blog'], ['/tools', 'tools']];
+const LINKS = [['/about', 'about'], ['/games', 'games'], ['/live', 'blog'], ['/tools', 'tools']];
 
 // Inline SVG icons stay crisp without a font or external icon library.
 const ICONS = {
@@ -20,7 +20,6 @@ export async function onRequest(context) {
   const response = await context.next();
   const url = new URL(context.request.url);
   const destination = context.request.headers.get('sec-fetch-dest');
-  // Fail safely for older clients without Fetch Metadata: serve the original.
   if (destination !== 'document' || context.request.method !== 'GET' ||
       url.searchParams.has(DIRECT) || !response.ok || response.status === 204 ||
       response.status === 205 || response.status === 206 ||
@@ -37,12 +36,12 @@ export async function onRequest(context) {
   const direct = new URL(url); direct.searchParams.set(DIRECT, '1');
   return new Response(`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>gtriplets</title>
+<title>gtrip's site</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS_CLIENT}" crossorigin="anonymous"></script>
 <style>${glassStyles}</style></head><body>
 <div class="ambience" aria-hidden="true"></div>
 <header id="gt-header" class="glass">
-  <a class="brand" href="/" aria-label="G Triplets home"><span class="orb" aria-hidden="true"><i></i></span><span>G Triplets</span></a>
+  <a class="brand" href="/" aria-label="G Triplets home"><span class="orb" aria-hidden="true"><i></i></span><span>gtriplets</span></a>
   <nav aria-label="Main navigation">${LINKS.map(([href,label]) => `<a href="${href}">${icon(label)}<span>${label[0].toUpperCase() + label.slice(1)}</span></a>`).join('')}</nav>
 </header>
 <main id="gt-main"><div id="gt-progress" role="status" aria-live="polite"></div>
