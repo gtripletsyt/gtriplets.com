@@ -1,5 +1,5 @@
 const EXCLUDED = ['/games/drift-boss', '/games/gd', '/games/flappy'];
-const LINKS = [['/', 'home'], ['/about', 'about'], ['/contact', 'contact'], ['/games', 'games'], ['/live', 'blog'], ['/tools', 'tools']];
+const LINKS = [['/', 'home'], ['/about', 'about'], ['/games', 'games'], ['/live', 'blog'], ['/tools', 'tools']];
 
 // Inline SVG icons stay crisp without a font or external icon library.
 const ICONS = {
@@ -37,7 +37,7 @@ export async function onRequest(context) {
   const direct = new URL(url); direct.searchParams.set(DIRECT, '1');
   return new Response(`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>G Triplets</title>
+<title>gtriplets</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS_CLIENT}" crossorigin="anonymous"></script>
 <style>${glassStyles}</style></head><body>
 <div class="ambience" aria-hidden="true"></div>
