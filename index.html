@@ -13,29 +13,23 @@
       box-sizing: border-box;
       font-family: Arial, Helvetica, sans-serif;
     }
-  body {
-  background: linear-gradient(
-    -45deg,
-    #0f172a,
-    #1e3a8a,
-    #7c3aed,
-    #0ea5e9
-  );
-  background-size: 400% 400%;
-  animation: gradientMove 15s ease infinite;
-  min-height: 100vh;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  text-align: center;
-}
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    body {
+      background: linear-gradient(-45deg, #0f172a, #1e3a8a, #7c3aed, #0ea5e9);
+      background-size: 400% 400%;
+      animation: gradientMove 15s ease infinite;
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
     .hero { max-width: 700px; padding: 20px; }
     h1 { font-size: 3rem; margin-bottom: 20px; }
     p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
@@ -51,13 +45,22 @@
     }
     .btn:hover { transform: translateY(-3px); background: #f3f4f6; }
 
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
     /* status + presence dropdown */
     .status-wrap {
       position: relative;
-      display: inline-flex;
+      display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      margin-top: 18px;
+      width: fit-content;
+      margin: 24px auto 0;
       font-size: 0.95rem;
       opacity: 0.9;
     }
@@ -68,8 +71,10 @@
       border-radius: 50%;
       background: #9ca3af;
     }
-    .status-dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-    .status-dot.offline { background: #ef4444; }
+    .status-dot.online  { background: #23a55a; box-shadow: 0 0 6px #23a55a; }
+    .status-dot.idle    { background: #f0b232; box-shadow: 0 0 6px #f0b232; }
+    .status-dot.dnd     { background: #f23f43; box-shadow: 0 0 6px #f23f43; }
+    .status-dot.offline { background: #80848e; }
 
     .presence-toggle {
       background: none;
@@ -110,11 +115,6 @@
     .presence-panel.show { display: block; }
     .presence-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .presence-row:last-child { margin-bottom: 0; }
-    .discord-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .discord-status-dot.online { background: #23a55a; }
-    .discord-status-dot.idle { background: #f0b232; }
-    .discord-status-dot.dnd { background: #f23f43; }
-    .discord-status-dot.offline { background: #80848e; }
     .presence-label { opacity: 0.7; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .presence-activity { font-weight: bold; }
     .presence-detail { opacity: 0.8; font-size: 0.8rem; }
@@ -124,12 +124,18 @@
   <section class="hero">
     <h1>welcome to my website 👋</h1>
     <p>
-      this website is a work in progress. expect things
-      to be half-finished/not working
-       <br><br>
-        🎮 more games coming soon!
+      this website is a work in progress. expect things to be broken.
+      <br><br>
+      🎮 more stuff coming soon!
     </p>
-    <a href="/updates" class="btn">see my latest updates to the site</a>
+    <div class="button-group">
+      <a href="/updates" class="btn">
+        see my latest updates to the site
+      </a>
+      <a href="/games" class="btn">
+        check out my games (some with cheats 👀 )
+      </a>
+    </div>
 
     <div class="status-wrap">
       <span class="status-dot" id="statusDot"></span>
@@ -139,49 +145,28 @@
       </button>
 
       <div class="presence-panel" id="presencePanel">
-        <div class="presence-row">
-          <span class="discord-status-dot offline" id="discordDot"></span>
-          <span id="discordStatusText">loading…</span>
-        </div>
         <div id="discordActivity"></div>
       </div>
     </div>
   </section>
 
   <script>
-    // ===== Computer online/offline (Cloudflare Worker heartbeat) =====
-    const STATUS_URL = "https://gtrip-status.gtripletsyt.workers.dev/status";
+    // ===== Discord presence (via Lanyard) =====
     const NAME = "gtrip";
+    const DISCORD_USER_ID = "914563340234280970";
+    const LANYARD_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
     const CHECK_INTERVAL = 30000;
 
-    async function checkStatus() {
-      const statusEl = document.getElementById("status");
-      const dotEl = document.getElementById("statusDot");
-      try {
-        const res = await fetch(STATUS_URL);
-        const data = await res.json();
-        if (data.online) {
-          statusEl.textContent = `${NAME} is online`;
-          dotEl.className = "status-dot online";
-        } else {
-          statusEl.textContent = `${NAME} is offline`;
-          dotEl.className = "status-dot offline";
-        }
-      } catch (e) {
-        statusEl.textContent = `${NAME} is offline`;
-        dotEl.className = "status-dot offline";
-      }
-    }
-    checkStatus();
-    setInterval(checkStatus, CHECK_INTERVAL);
-
-    // ===== Discord presence (via Lanyard) =====
-    const DISCORD_USER_ID = "914563340234280970"; // <-- put your Discord user ID here
-    const LANYARD_URL = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}`;
+    const STATUS_LABELS = {
+      online: "online",
+      idle: "idle",
+      dnd: "do not disturb",
+      offline: "offline"
+    };
 
     async function fetchPresence() {
-      const dot = document.getElementById("discordDot");
-      const statusText = document.getElementById("discordStatusText");
+      const dot = document.getElementById("statusDot");
+      const statusText = document.getElementById("status");
       const activityEl = document.getElementById("discordActivity");
 
       try {
@@ -191,13 +176,8 @@
         const data = json.data;
 
         const discordStatus = data.discord_status || "offline";
-        dot.className = `discord-status-dot ${discordStatus}`;
-        statusText.textContent = {
-          online: "Online",
-          idle: "Idle",
-          dnd: "Do Not Disturb",
-          offline: "Offline"
-        }[discordStatus] || "Unknown";
+        dot.className = `status-dot ${discordStatus}`;
+        statusText.textContent = `${NAME} is ${STATUS_LABELS[discordStatus] || "offline"}`;
 
         const activities = (data.activities || []).filter(a => a.type !== 4);
         activityEl.innerHTML = "";
@@ -234,9 +214,9 @@
           activityEl.appendChild(row);
         }
       } catch (e) {
-        statusText.textContent = "Couldn't load presence";
-        dot.className = "discord-status-dot offline";
-        activityEl.innerHTML = "";
+        statusText.textContent = `${NAME} is offline`;
+        dot.className = "status-dot offline";
+        activityEl.innerHTML = `<div class="presence-detail">Couldn't load presence</div>`;
       }
     }
 
@@ -259,7 +239,8 @@
       }
     });
 
-    setInterval(() => { if (panelOpen) fetchPresence(); }, CHECK_INTERVAL);
+    fetchPresence();
+    setInterval(fetchPresence, CHECK_INTERVAL);
   </script>
 </body>
 </html>
