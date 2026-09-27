@@ -1,0 +1,22 @@
+🎬 Mini Video Editor
+Import media
+
+Photos → Video
+
+Export
+Media
+Drop videos, audio, or images here
+
+
+
+Clip
+Name
+
+Start
+
+End
+
+Apply trimDelete clip
+Import media to start.
+Timeline
+

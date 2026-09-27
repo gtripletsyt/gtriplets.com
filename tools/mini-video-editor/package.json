@@ -1,0 +1,1 @@
+{"name":"mini-video-editor","version":"1.0.0","private":true,"description":"Browser video editor using FFmpeg.wasm","scripts":{"serve":"npx serve ."},"dependencies":{"@ffmpeg/ffmpeg":"0.12.10","@ffmpeg/util":"0.12.1"}}
