@@ -120,21 +120,21 @@
     .presence-detail { opacity: 0.8; font-size: 0.8rem; }
     
 .creator-note {
-  margin: 16px auto 0;
+  margin: 8px auto 0;
   text-align: center;
   max-width: 390px;
 }
 
 .creator-message {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  opacity: 0.8;
-  margin-bottom: 10px;
+  font-size: 0.65rem;
+  line-height: 1.3;
+  opacity: 0.65;
+  margin-bottom: 4px;
 }
 
 .copyright {
-  font-size: 0.7rem;
-  opacity: 0.5;
+  font-size: 0.55rem;
+  opacity: 0.4;
   margin-bottom: 0;
 }
     
@@ -158,18 +158,37 @@
   margin-bottom: 14px;
 }
 
+
 .music-art {
-  width: 52px;
-  height: 52px;
+  width: 45px;
+  height: 45px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #7c3aed, #0ea5e9);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 25px;
+  font-size: 21px;
+  overflow: hidden;
+  position: relative;
 }
 
+.music-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.music-art img[src=""] {
+  display: none;
+}
+
+#musicFallback {
+  z-index: 0;
+}
 .music-info {
   min-width: 0;
 }
@@ -258,7 +277,10 @@
     
 <div class="music-player">
   <div class="music-header">
-    <div class="music-art">🎵</div>
+    <div class="music-art">
+  <img id="musicArt" src="" alt="song cover">
+  <span id="musicFallback">🎵</span>
+  </div>
     <div class="music-info">
       <div class="music-label">LATEST RELEASE</div>
       <div class="music-title" id="musicTitle">Loading song...</div>
@@ -430,9 +452,28 @@ async function loadLatestSong() {
     const song = await response.json();
 
     title.textContent = song.title;
-    audio.src = song.url;
-    audio.load();
-    errorEl.textContent = "";
+audio.src = song.url;
+
+const art = document.getElementById("musicArt");
+const fallback = document.getElementById("musicFallback");
+
+if (song.art) {
+  art.src = song.art;
+  art.style.display = "block";
+  fallback.style.display = "none";
+
+  art.onerror = () => {
+    art.style.display = "none";
+    fallback.style.display = "block";
+  };
+} else {
+  art.removeAttribute("src");
+  art.style.display = "none";
+  fallback.style.display = "block";
+}
+
+audio.load();
+errorEl.textContent = "";
   } catch (error) {
     title.textContent = "No song available";
     errorEl.textContent = "Couldn't load the latest song.";
