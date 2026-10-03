@@ -419,7 +419,7 @@ function formatTime(seconds) {
 
 async function loadLatestSong() {
   try {
-    const response = await fetch("/api/latest-song.js", {
+    const response = await fetch("/functions/api/latest-song.js", {
       cache: "no-store"
     });
 
