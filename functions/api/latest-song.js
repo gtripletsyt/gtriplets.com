@@ -1,23 +1,19 @@
 
-export async function onRequest(context) {
-  const { env } = context;
-
+export async function onRequest({ env }) {
   if (!env.LATEST_SONG_URL) {
     return Response.json(
-      { error: "No song configured" },
+      { error: "no song configured" },
       { status: 404 }
     );
   }
 
-  return Response.json(
-    {
-      title: env.LATEST_SONG_TITLE || "latest song",
-      url: env.LATEST_SONG_URL
-    },
-    {
-      headers: {
-        "Cache-Control": "no-store"
-      }
+  return Response.json({
+    title: env.LATEST_SONG_TITLE || "Latest Song",
+    url: env.LATEST_SONG_URL,
+    art: env.LATEST_SONG_ART_URL || ""
+  }, {
+    headers: {
+      "Cache-Control": "no-store"
     }
-  );
+  });
 }
