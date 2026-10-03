@@ -118,6 +118,106 @@
     .presence-label { opacity: 0.7; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .presence-activity { font-weight: bold; }
     .presence-detail { opacity: 0.8; font-size: 0.8rem; }
+    
+.music-player {
+  max-width: 390px;
+  width: 100%;
+  margin: 25px auto 0;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  text-align: left;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.music-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.music-art {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+}
+
+.music-info {
+  min-width: 0;
+}
+
+.music-label {
+  font-size: 0.7rem;
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.music-title {
+  font-size: 1rem;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.music-play {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: #4f46e5;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.music-play:hover {
+  transform: scale(1.08);
+}
+
+.music-timeline {
+  flex: 1;
+  min-width: 0;
+}
+
+.music-progress {
+  width: 100%;
+  accent-color: white;
+  cursor: pointer;
+}
+
+.music-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 3px;
+}
+
+.music-error {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin-top: 8px;
+}
   </style>
 </head>
 <body>
@@ -136,6 +236,41 @@
         check out my games (some with cheats 👀 )
       </a>
     </div>
+    
+<div class="music-player">
+  <div class="music-header">
+    <div class="music-art">🎵</div>
+    <div class="music-info">
+      <div class="music-label">LATEST RELEASE</div>
+      <div class="music-title" id="musicTitle">Loading song...</div>
+    </div>
+  </div>
+
+  <div class="music-controls">
+    <button class="music-play" id="musicPlay" aria-label="Play song">▶</button>
+
+    <div class="music-timeline">
+      <input
+        type="range"
+        class="music-progress"
+        id="musicProgress"
+        min="0"
+        max="100"
+        value="0"
+        step="0.1"
+        aria-label="Song progress"
+      >
+      <div class="music-times">
+        <span id="musicCurrent">0:00</span>
+        <span id="musicDuration">0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="music-error" id="musicError"></div>
+
+  <audio id="musicAudio" preload="metadata"></audio>
+</div>
 
     <div class="status-wrap">
       <span class="status-dot" id="statusDot"></span>
@@ -241,6 +376,97 @@
 
     fetchPresence();
     setInterval(fetchPresence, CHECK_INTERVAL);
+  </script>
+  <script>
+const audio = document.getElementById("musicAudio");
+const playBtn = document.getElementById("musicPlay");
+const progress = document.getElementById("musicProgress");
+const title = document.getElementById("musicTitle");
+const currentTimeEl = document.getElementById("musicCurrent");
+const durationEl = document.getElementById("musicDuration");
+const errorEl = document.getElementById("musicError");
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+async function loadLatestSong() {
+  try {
+    const response = await fetch("/api/latest-song", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Couldn't find a song");
+    }
+
+    const song = await response.json();
+
+    title.textContent = song.title;
+    audio.src = song.url;
+    audio.load();
+    errorEl.textContent = "";
+  } catch (error) {
+    title.textContent = "No song available";
+    errorEl.textContent = "Couldn't load the latest song.";
+    playBtn.disabled = true;
+  }
+}
+
+playBtn.addEventListener("click", async () => {
+  if (audio.paused) {
+    try {
+      await audio.play();
+    } catch (error) {
+      errorEl.textContent = "Couldn't play this song.";
+    }
+  } else {
+    audio.pause();
+  }
+});
+
+audio.addEventListener("play", () => {
+  playBtn.textContent = "❚❚";
+  playBtn.setAttribute("aria-label", "Pause song");
+});
+
+audio.addEventListener("pause", () => {
+  playBtn.textContent = "▶";
+  playBtn.setAttribute("aria-label", "Play song");
+});
+
+audio.addEventListener("loadedmetadata", () => {
+  durationEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener("timeupdate", () => {
+  currentTimeEl.textContent = formatTime(audio.currentTime);
+
+  if (Number.isFinite(audio.duration) && audio.duration > 0) {
+    progress.value = (audio.currentTime / audio.duration) * 100;
+  }
+});
+
+progress.addEventListener("input", () => {
+  if (Number.isFinite(audio.duration) && audio.duration > 0) {
+    audio.currentTime = (Number(progress.value) / 100) * audio.duration;
+  }
+});
+
+audio.addEventListener("ended", () => {
+  playBtn.textContent = "▶";
+  playBtn.setAttribute("aria-label", "Play song");
+  progress.value = 0;
+});
+
+audio.addEventListener("error", () => {
+  errorEl.textContent = "Unable to load this audio file.";
+});
+
+loadLatestSong();
   </script>
 </body>
 </html>
