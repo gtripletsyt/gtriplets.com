@@ -1,5 +1,5 @@
 const EXCLUDED = ['/games/drift-boss', '/games/gd', '/games/flappy'];
-const LINKS = [['/about', 'about'], ['/games', 'games'], ['/live', 'blog'], ['/tools', 'tools']];
+const LINKS = [['/about', 'about'], ['/games', 'games'], ['/live', 'blog'], ['/updates', 'changelog'], ['/tools', 'tools']];
 
 // Inline SVG icons stay crisp without a font or external icon library.
 const ICONS = {
