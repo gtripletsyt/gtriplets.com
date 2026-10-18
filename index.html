@@ -50,74 +50,32 @@
       gap: 16px;
     }
 
-    /* status + presence dropdown */
-    .status-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      width: fit-content;
-      margin: 24px auto 0;
-      font-size: 0.95rem;
-      opacity: 0.9;
-    }
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #9ca3af;
-    }
-    .status-dot.online  { background: #23a55a; box-shadow: 0 0 6px #23a55a; }
-    .status-dot.idle    { background: #f0b232; box-shadow: 0 0 6px #f0b232; }
-    .status-dot.dnd     { background: #f23f43; box-shadow: 0 0 6px #f23f43; }
-    .status-dot.offline { background: #80848e; }
-
-    .presence-toggle {
-      background: none;
-      border: none;
-      color: white;
-      opacity: 0.75;
-      cursor: pointer;
-      font-size: 0.85rem;
-      padding: 2px 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .presence-toggle:hover { opacity: 1; }
-    .presence-toggle .chevron {
-      display: inline-block;
-      transition: transform 0.15s ease;
-      font-size: 0.7rem;
-    }
-    .presence-toggle.open .chevron { transform: rotate(180deg); }
-
-    .presence-panel {
-      position: absolute;
-      top: 130%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 12px 16px;
-      min-width: 220px;
-      font-size: 0.85rem;
-      text-align: left;
-      display: none;
-      z-index: 10;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-    }
-    .presence-panel.show { display: block; }
-    .presence-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .presence-row:last-child { margin-bottom: 0; }
-    .presence-label { opacity: 0.7; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .presence-activity { font-weight: bold; }
-    .presence-detail { opacity: 0.8; font-size: 0.8rem; }
+    /* Discord presence card */
+    .status-wrap { position:relative; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; width:fit-content; margin:24px auto 0; font-size:.95rem; opacity:.95; }
+    .status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#9ca3af; }
+    .status-dot.online { background:#23a55a; box-shadow:0 0 6px #23a55a; }
+    .status-dot.idle { background:#f0b232; box-shadow:0 0 6px #f0b232; }
+    .status-dot.dnd { background:#f23f43; box-shadow:0 0 6px #f23f43; }
+    .status-dot.offline { background:#80848e; }
+    .presence-toggle { background:none; border:none; color:white; opacity:.8; cursor:pointer; font-size:.85rem; padding:2px 6px; display:inline-flex; align-items:center; gap:3px; }
+    .presence-toggle:hover { opacity:1; }
+    .presence-toggle .chevron { display:inline-block; transition:transform .15s ease; font-size:.7rem; }
+    .presence-toggle.open .chevron { transform:rotate(180deg); }
+    .presence-panel { position:absolute; top:135%; left:50%; transform:translateX(-50%); background:#18191c; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px; width:min(360px, calc(100vw - 32px)); text-align:left; display:none; z-index:10; box-shadow:0 10px 30px rgba(0,0,0,.4); }
+    .presence-panel.show { display:block; }
+    .activity-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .activity-icon { width:64px; height:64px; flex:0 0 64px; border-radius:12px; background:#292b2f; object-fit:cover; display:none; }
+    .activity-icon-fallback { width:64px; height:64px; flex:0 0 64px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#292b2f; font-size:28px; }
+    .activity-heading { min-width:0; }
+    .activity-label { color:#b5bac1; font-size:.8rem; margin-bottom:4px; }
+    .activity-name { font-size:1.1rem; font-weight:700; overflow-wrap:anywhere; }
+    .activity-detail { color:#dbdee1; font-size:.95rem; margin-top:3px; overflow-wrap:anywhere; }
+    .activity-state { color:#b5bac1; font-size:.85rem; margin-top:4px; overflow-wrap:anywhere; }
+    .activity-meta { color:#23a55a; font-size:.9rem; margin-top:10px; }
+    .activity-empty { color:#b5bac1; font-size:.9rem; }
   
-    
+
+    /* Restored original music player styling */
 .music-player {
   max-width: 390px;
   width: 100%;
@@ -316,59 +274,113 @@
       offline: "offline"
     };
 
+    function formatElapsed(startTimestamp) {
+      if (!startTimestamp) return "";
+      const seconds = Math.max(0, Math.floor(Date.now() / 1000 - startTimestamp / 1000));
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}` : `${minutes}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function getActivityImage(activity) {
+      const assets = activity.assets || {};
+      const image = assets.large_image || assets.small_image;
+      if (!image) return "";
+      if (image.startsWith("mp:external/")) return "https://media.discordapp.net/external/" + image.slice("mp:external/".length);
+      if (image.startsWith("https://") || image.startsWith("http://")) return image;
+      if (activity.application_id) return `https://cdn.discordapp.com/app-assets/${activity.application_id}/${image}.png`;
+      return "";
+    }
+
+    function addText(parent, className, value) {
+      if (!value) return null;
+      const element = document.createElement("div");
+      element.className = className;
+      element.textContent = value;
+      parent.appendChild(element);
+      return element;
+    }
+
     async function fetchPresence() {
       const dot = document.getElementById("statusDot");
       const statusText = document.getElementById("status");
       const activityEl = document.getElementById("discordActivity");
-
       try {
-        const res = await fetch(LANYARD_URL);
+        const res = await fetch(LANYARD_URL, { cache: "no-store" });
         const json = await res.json();
         if (!json.success) throw new Error("lanyard request failed");
         const data = json.data;
-
         const discordStatus = data.discord_status || "offline";
         dot.className = `status-dot ${discordStatus}`;
         statusText.textContent = `${NAME} is ${STATUS_LABELS[discordStatus] || "offline"}`;
-
         const activities = (data.activities || []).filter(a => a.type !== 4);
-        activityEl.innerHTML = "";
+        activityEl.replaceChildren();
 
         if (data.listening_to_spotify && data.spotify) {
-          const row = document.createElement("div");
-          row.className = "presence-row";
-          row.innerHTML = `<span class="presence-label">Listening</span>`;
-          const detail = document.createElement("div");
-          detail.className = "presence-detail";
-          detail.textContent = `🎵 ${data.spotify.song} — ${data.spotify.artist}`;
-          activityEl.appendChild(row);
-          activityEl.appendChild(detail);
-        } else if (activities.length > 0) {
-          const act = activities[0];
-          const row = document.createElement("div");
-          row.className = "presence-row";
-          row.innerHTML = `<span class="presence-label">${act.type === 0 ? "Playing" : "Doing"}</span>`;
-          const detail = document.createElement("div");
-          detail.className = "presence-activity";
-          detail.textContent = act.name;
-          activityEl.appendChild(row);
-          activityEl.appendChild(detail);
-          if (act.details) {
-            const sub = document.createElement("div");
-            sub.className = "presence-detail";
-            sub.textContent = act.details;
-            activityEl.appendChild(sub);
+          const spotify = data.spotify;
+          const top = document.createElement("div");
+          top.className = "activity-top";
+          const art = document.createElement("img");
+          art.className = "activity-icon";
+          art.alt = "Album artwork";
+          art.src = spotify.album_art_url || "";
+          if (spotify.album_art_url) art.style.display = "block";
+          const fallback = document.createElement("div");
+          fallback.className = "activity-icon-fallback";
+          fallback.textContent = "🎵";
+          if (spotify.album_art_url) fallback.style.display = "none";
+          art.onerror = () => { art.style.display = "none"; fallback.style.display = "flex"; };
+          top.append(art, fallback);
+          const heading = document.createElement("div");
+          heading.className = "activity-heading";
+          addText(heading, "activity-label", "Listening to Spotify");
+          addText(heading, "activity-name", spotify.song || "Unknown song");
+          addText(heading, "activity-detail", spotify.artist || "");
+          addText(heading, "activity-state", spotify.album || "");
+          top.appendChild(heading);
+          activityEl.appendChild(top);
+        } else if (activities.length) {
+          const act = activities.find(a => a.type === 0) || activities[0];
+          const top = document.createElement("div");
+          top.className = "activity-top";
+          const imageUrl = getActivityImage(act);
+          const icon = document.createElement("img");
+          icon.className = "activity-icon";
+          icon.alt = `${act.name || "Activity"} icon`;
+          if (imageUrl) { icon.src = imageUrl; icon.style.display = "block"; }
+          const fallback = document.createElement("div");
+          fallback.className = "activity-icon-fallback";
+          fallback.textContent = act.type === 0 ? "🎮" : "💬";
+          if (imageUrl) {
+            fallback.style.display = "none";
+            icon.onerror = () => { icon.style.display = "none"; fallback.style.display = "flex"; };
+          }
+          top.append(icon, fallback);
+          const heading = document.createElement("div");
+          heading.className = "activity-heading";
+          addText(heading, "activity-label", act.type === 0 ? "Playing" : "Activity");
+          addText(heading, "activity-name", act.name || "Unknown activity");
+          addText(heading, "activity-detail", act.details || "");
+          addText(heading, "activity-state", act.state || "");
+          top.appendChild(heading);
+          activityEl.appendChild(top);
+          if (act.party && act.party.size) {
+            const size = Array.isArray(act.party.size) ? act.party.size : [];
+            addText(activityEl, "activity-state", size.length >= 2 ? `👥 Party: ${size[0]} of ${size[1]}` : "👥 In a party");
+          }
+          if (act.timestamps && act.timestamps.start) {
+            const timer = addText(activityEl, "activity-meta", `🎮 ${formatElapsed(act.timestamps.start)} elapsed`);
+            timer.dataset.started = String(act.timestamps.start);
           }
         } else {
-          const row = document.createElement("div");
-          row.className = "presence-detail";
-          row.textContent = "Not doing anything in particular";
-          activityEl.appendChild(row);
+          addText(activityEl, "activity-empty", "Not playing anything right now.");
         }
       } catch (e) {
         statusText.textContent = `${NAME} is offline`;
         dot.className = "status-dot offline";
-        activityEl.innerHTML = `<div class="presence-detail">Couldn't load presence</div>`;
+        activityEl.replaceChildren();
+        addText(activityEl, "activity-empty", "Couldn't load Discord activity.");
       }
     }
 
@@ -393,6 +405,11 @@
 
     fetchPresence();
     setInterval(fetchPresence, CHECK_INTERVAL);
+    setInterval(() => {
+      document.querySelectorAll(".activity-meta[data-started]").forEach(el => {
+        el.textContent = `🎮 ${formatElapsed(Number(el.dataset.started))} elapsed`;
+      });
+    }, 1000);
   </script>
   <script>
 const audio = document.getElementById("musicAudio");
