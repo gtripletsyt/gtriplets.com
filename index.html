@@ -17,10 +17,7 @@
       animation: gradientMove 15s ease infinite;
       min-height: 100vh;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background-attachment: fixed;
       text-align: center;
     }
     @keyframes gradientMove {
@@ -28,7 +25,7 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .hero { max-width: 700px; padding: 20px; }
+    .hero { max-width: 700px; padding: 40px 20px; margin: 0 auto; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     h1 { font-size: 3rem; margin-bottom: 20px; }
     p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; }
     .btn {
@@ -194,6 +191,19 @@
   opacity: 0.75;
   margin-top: 8px;
 }
+
+    .page-overviews { width: min(100% - 40px, 1000px); margin: 0 auto; padding: 64px 0 100px; text-align: left; }
+    .overview { margin-bottom: 36px; padding: clamp(22px, 4vw, 40px); background: rgba(15,23,42,.55); border: 1px solid rgba(255,255,255,.18); border-radius: 24px; backdrop-filter: blur(12px); box-shadow: 0 12px 35px rgba(0,0,0,.15); }
+    .overview-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+    .overview h2 { font-size: 1.8rem; }
+    .overview-heading a { color: white; text-underline-offset: 5px; font-weight: bold; }
+    .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+    .overview-item { display: block; padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.07); color: white; text-decoration: none; transition: background .2s, transform .2s; }
+    .overview-item:hover { background: rgba(255,255,255,.13); transform: translateY(-3px); }
+    .overview-item h3 { font-size: 1.1rem; margin-bottom: 10px; overflow-wrap: anywhere; }
+    .overview-item p, .overview-message { font-size: 1rem; margin-bottom: 0; overflow-wrap: anywhere; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+    @media (prefers-reduced-motion: reduce) { body { animation: none; } .btn, .overview-item { transition: none; } }
   </style>
 </head>
 <body>
@@ -207,7 +217,6 @@
       <a href="/games" class="btn">
         check out my games (some with cheats 👀 )
       </a>
-    </div>
     
 <div class="music-player">
   <div class="music-header">
@@ -219,6 +228,7 @@
       <div class="music-label">LATEST RELEASE</div>
       <div class="music-title" id="musicTitle">Loading song...</div>
     </div>
+  </div>
 
 
   <div class="music-controls">
@@ -259,6 +269,88 @@
       </div>
     </div>
   </section>
+
+
+  <main class="page-overviews" aria-label="Explore the website">
+    <section class="overview" data-page="/games" aria-labelledby="games-heading">
+      <div class="overview-heading"><h2 id="games-heading">🎮 games</h2><a href="/games">all games →</a></div>
+      <div class="overview-grid" aria-live="polite"><p class="overview-message">Loading games…</p></div>
+    </section>
+    <section class="overview" data-page="/blog" aria-labelledby="blog-heading">
+      <div class="overview-heading"><h2 id="blog-heading">✍️ my blog</h2><a href="/live">read my blog→</a></div>
+      <div class="overview-grid" aria-live="polite"><p class="overview-message">loading posts…</p></div>
+    </section>
+    <section class="overview" data-page="/changelog" aria-labelledby="changelog-heading">
+      <div class="overview-heading"><h2 id="changelog-heading">🛠️ updates </h2><a href="/updates">all updates →</a></div>
+      <div class="overview-grid" aria-live="polite"><p class="overview-message">loading updates…</p></div>
+    </section>
+  </main>
+  <script>
+    // Read same-origin pages as inert HTML; their scripts never execute here.
+    // Add data-overview-item to source cards for precise control over previews.
+    const cleanText = el => (el?.textContent || '').replace(/\s+/g, ' ').trim();
+    const shorten = (text, limit) => text.length > limit ? text.slice(0, limit).trimEnd() + '…' : text;
+    async function loadOverview(section) {
+      const grid = section.querySelector('.overview-grid');
+      const path = section.dataset.page;
+      const pageURL = new URL(path, location.href);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      try {
+        const response = await fetch(pageURL, { signal: controller.signal });
+        if (!response.ok) throw new Error('Page unavailable');
+        const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+        doc.querySelectorAll('script, style, nav, header, footer, .hero, .page-overviews').forEach(el => el.remove());
+        const root = doc.querySelector('main, [role="main"]') || doc.body;
+        let entries = [...root.querySelectorAll('[data-overview-item]')];
+        if (!entries.length) entries = [...root.querySelectorAll('article, .game-card, .post-card, .blog-post, .changelog-entry, .change-entry, .card')];
+        // Simpler pages can supply previews through headings and their next paragraph.
+        if (!entries.length) entries = [...root.querySelectorAll('h2, h3')];
+        const seen = new Set();
+        const cards = [];
+        for (const entry of entries) {
+          const heading = entry.matches('h2, h3') ? entry : entry.querySelector('h2, h3, h4');
+          const link = entry.matches('a[href]') ? entry : entry.querySelector('a[href]');
+          const name = cleanText(heading) || cleanText(link);
+          if (!name || seen.has(name)) continue;
+          seen.add(name);
+          const rawURL = link?.getAttribute('href');
+          let target = pageURL;
+          if (rawURL) {
+            const candidate = new URL(rawURL, pageURL);
+            if (candidate.origin === location.origin && /^https?:$/.test(candidate.protocol)) target = candidate;
+          } else if (heading?.id) {
+            target = new URL(pageURL); target.hash = heading.id;
+          }
+          const paragraph = entry.matches('h2, h3') ? (entry.nextElementSibling?.matches('p') ? entry.nextElementSibling : null) : entry.querySelector('p');
+          const card = document.createElement('a');
+          card.className = 'overview-item'; card.href = target.href;
+          const title = document.createElement('h3'); title.textContent = shorten(name, 100); card.appendChild(title);
+          const description = cleanText(paragraph);
+          if (description) { const p = document.createElement('p'); p.textContent = shorten(description, 180); card.appendChild(p); }
+          cards.push(card);
+          if (cards.length === 3) break;
+        }
+        if (!cards.length) {
+          const summary = cleanText(root.querySelector('p'));
+          const card = document.createElement('a'); card.className = 'overview-item'; card.href = pageURL.href;
+          const p = document.createElement('p'); p.textContent = shorten(summary, 240) || 'Open this page to see everything.'; card.appendChild(p); cards.push(card);
+        }
+        grid.replaceChildren(...cards);
+      } catch (error) {
+        const p = document.createElement('p'); p.className = 'overview-message';
+        p.textContent = 'Preview unavailable right now. Use the link above to visit the page.';
+        grid.replaceChildren(p);
+      } finally { clearTimeout(timeout); }
+    }
+    // Start loading just before each section scrolls into view.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => { if (entry.isIntersecting) { observer.unobserve(entry.target); loadOverview(entry.target); } });
+      }, { rootMargin: '250px' });
+      document.querySelectorAll('.overview').forEach(section => observer.observe(section));
+    } else { document.querySelectorAll('.overview').forEach(loadOverview); }
+  </script>
 
   <script>
     // ===== Discord presence (via Lanyard) =====

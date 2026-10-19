@@ -12,12 +12,22 @@ export async function onRequestPost(context) {
       (await context.env.UPDATES.get("updates")) || "[]"
     );
 
+    const imageInputs = [...(Array.isArray(body.images) ? body.images : []), ...(body.image ? [body.image] : [])];
+    const images = [...new Set(imageInputs)].slice(0, 10);
+    if (images.some(image => typeof image !== "string" || !validImageURL(image))) {
+      return Response.json({ error: "Images must be HTTPS URLs or site paths starting with /" }, { status: 400 });
+    }
+    if (typeof body.title !== "string" || !body.title.trim()) {
+      return Response.json({ error: "A title is required" }, { status: 400 });
+    }
+
     updates.unshift({
       title: body.title,
       description: body.description,
       author: body.author,
       date: new Date().toISOString(),
-      url: body.url || "#"
+      url: body.url || "#",
+      images
     });
 
     await context.env.UPDATES.put(
@@ -35,3 +45,9 @@ export async function onRequestPost(context) {
     });
   }
 }
+
+function validImageURL(value) {
+  if (value.startsWith("/") && !value.startsWith("//") && !value.includes("\\")) return true;
+  try { return new URL(value).protocol === "https:"; } catch { return false; }
+}
+

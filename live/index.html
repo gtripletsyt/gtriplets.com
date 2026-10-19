@@ -1,175 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>latest site news</title>
-
-  <style>
-    body {
-      background: #111827;
-      color: white;
-      font-family: Arial, sans-serif;
-      padding: 40px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .commit {
-      background: #1f2937;
-      padding: 20px;
-      margin: 15px auto;
-      max-width: 700px;
-      border-radius: 12px;
-      transition: 0.2s;
-    }
-
-    .commit:hover {
-      transform: translateY(-3px);
-      background: #374151;
-    }
-
-    .commit h2 {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    .commit p {
-      color: #cbd5e1;
-    }
-
-    a {
-      color: #60a5fa;
-    }
-
-    #loading {
-      text-align: center;
-      margin: 30px;
-      color: #9ca3af;
-    }
-    .stream-box {
-  position: relative;
-  width: 800px;
-  height: 450px;
-  max-width: 100%;
-  background: #000;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.stream-box iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
-}
-
-.resize-handle {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 18px;
-  height: 18px;
-  cursor: nwse-resize;
-  background: rgba(255, 255, 255, 0.85);
-  clip-path: polygon(100% 0, 0 100%, 100% 100%);
-  border-radius: 3px;
-}
-
-.resize-handle::after {
-  content: "";
-  position: absolute;
-  right: 3px;
-  bottom: 3px;
-  width: 6px;
-  height: 6px;
-  border-right: 2px solid rgba(0, 0, 0, 0.5);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
-}
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gtrip's blog</title>
+<style>
+*{box-sizing:border-box}body{background:#111827;color:white;font-family:Arial,sans-serif;margin:0;padding:40px 20px}main{max-width:740px;margin:auto}h1{text-align:center;margin-bottom:30px}.section-title{font-size:1.35rem;margin:36px 0 20px}.commit{background:#1f2937;padding:20px;margin:15px auto;border-radius:12px;transition:.2s}.commit:hover{transform:translateY(-3px);background:#374151}.commit h2{font-size:1.2rem;margin:0 0 10px;white-space:pre-wrap;overflow-wrap:anywhere}.commit p{color:#cbd5e1;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.meta{font-size:.9rem;color:#9ca3af}.images{display:grid;gap:14px;margin:18px 0}.images a{display:block}.images img{display:block;width:100%;height:auto;max-height:650px;object-fit:contain;background:#111827;border-radius:10px}.image-error{color:#9ca3af;font-size:.9rem}a{color:#60a5fa}#loading,#update-status{text-align:center;margin:24px;color:#9ca3af}button{display:block;margin:24px auto;padding:12px 22px;border:0;border-radius:8px;background:#60a5fa;color:#111827;font-weight:bold;cursor:pointer}button:disabled{opacity:.5;cursor:wait}[hidden]{display:none!important}@media(prefers-reduced-motion:reduce){.commit{transition:none}.commit:hover{transform:none}}
+</style>
 </head>
-
-<body>
-
-<h1>latest site news</h1>
-
-<div id="commits"></div>
-
-<div id="loading">
-  Loading... (if this is taking a while, my servers might be down)
-</div>
-
+<body><main>
+<h1>my blog</h1>
+<div id="updates"></div><p id="update-status" role="status">Loading news…</p>
+</main>
 <script>
-
-
-let page = 1;
-let loading = false;
-let finished = false;
-
-
-async function loadCommits() {
-
-  if (loading || finished) return;
-
-  loading = true;
-
-  const response = await fetch("/api/updates?page=" + page);
-  const commits = await response.json();
-
-
-
-  if (commits.length === 0) {
-    finished = true;
-    document.getElementById("loading").innerHTML =
-      "No more news.";
-    return;
-  }
-
-
-  const container = document.getElementById("commits");
-
-
-  commits.forEach(commit => {
-
-    container.innerHTML += `
-  <div class="commit">
-
-    <h2>${commit.title}</h2>
-
-    <p>${commit.description}</p>
-
-    <p>
-      ${commit.author}<br>
-      ${new Date(commit.date).toLocaleString()}
-    </p>
-
-    <a href="${commit.url}" target="_blank">
-      View →
-    </a>
-
-  </div>
-`;
-
-  });
-
-
-  page++;
-  loading = false;
-  document.getElementById("loading").innerHTML =
-    "Scroll for more...";
+const UPDATES_API = '/api/updates'; // functions/api/updates.js
+function safeURL(value, image = false) {
+  if (typeof value !== 'string' || !value.trim() || value === '#') return null;
+  try { const url = new URL(value, location.href); return (url.protocol === 'https:' || (!image && url.protocol === 'http:') || (url.origin === location.origin && url.protocol === 'http:')) ? url.href : null; } catch { return null; }
 }
-
-
-
-console.log("loadCommits called");
-loadCommits();
-
+function addImage(container, src, alt) {
+  const url = safeURL(src, true); if (!url) return;
+  const link = document.createElement('a'); link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+  const img = document.createElement('img'); img.src = url; img.alt = alt || 'Update image'; img.loading = 'lazy'; img.decoding = 'async';
+  img.addEventListener('error', () => { const message = document.createElement('p'); message.className = 'image-error'; message.textContent = 'Image unavailable — open original image'; link.replaceChildren(message); }, { once: true });
+  link.append(img); container.append(link);
+}
+function renderPost(post) {
+  const card = document.createElement('article'); card.className = 'commit changelog-entry';
+  const title = document.createElement('h2'); title.textContent = post.title || 'Site update'; card.append(title);
+  // Support Markdown image embeds in descriptions, without injecting HTML.
+  const text = typeof post.description === 'string' ? post.description : '';
+  const pattern = /!\[([^\]]*)\]\(([^\s)]+)\)/g;
+  let previous = 0;
+  for (const match of text.matchAll(pattern)) {
+    appendText(text.slice(previous, match.index));
+    const media = document.createElement('div'); media.className = 'images'; addImage(media, match[2], match[1]); card.append(media);
+    previous = match.index + match[0].length;
+  }
+  appendText(text.slice(previous));
+  function appendText(value) { if (value.trim()) { const p = document.createElement('p'); p.textContent = value; card.append(p); } }
+  const images = [...(Array.isArray(post.images) ? post.images : []), ...(post.image ? [post.image] : [])];
+  if (images.length) { const media = document.createElement('div'); media.className = 'images'; [...new Set(images)].slice(0,10).forEach((src,i) => addImage(media,src, `${post.title || 'Update'} — image ${i+1}`)); card.append(media); }
+  const meta = document.createElement('p'); meta.className = 'meta'; const date = new Date(post.date);
+  meta.textContent = [post.author, Number.isNaN(date.getTime()) ? null : date.toLocaleString()].filter(Boolean).join(' · '); card.append(meta);
+  const url = safeURL(post.url); if (url) { const link = document.createElement('a'); link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = 'View →'; card.append(link); }
+  return card;
+}
+async function getJSON(url) {
+  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 15000);
+  try { const response = await fetch(url, { signal: controller.signal, cache: 'no-store' }); if (!response.ok) throw new Error(`HTTP ${response.status}`); return await response.json(); } finally { clearTimeout(timer); }
+}
+async function loadUpdates() {
+  const status = document.getElementById('update-status');
+  try { const posts = await getJSON(UPDATES_API); if (!Array.isArray(posts)) throw new Error('Invalid response'); document.getElementById('updates').replaceChildren(...posts.filter(p => p && typeof p === 'object').map(p => renderPost(p))); status.textContent = posts.length ? '' : 'No news yet.'; }
+  catch { status.textContent = 'couldnt loaded'; }
+}
+loadUpdates();
 </script>
-
-
-</body>
-</html>
+</body></html>
 
